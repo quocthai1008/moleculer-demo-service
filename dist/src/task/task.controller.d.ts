@@ -11,4 +11,5 @@ export declare class TaskController {
     static findAll(managerId: mongoose.Types.ObjectId, pageId: number, pageSize: number): Promise<Pagination<Task>>;
     static findOne(taskId: mongoose.Types.ObjectId): Promise<Task>;
     static isManager(taskId: mongoose.Types.ObjectId, managerId: mongoose.Types.ObjectId): Promise<boolean>;
+    static checkTaskExist(taskId: mongoose.Types.ObjectId): Promise<boolean>;
 }

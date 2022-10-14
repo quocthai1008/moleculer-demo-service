@@ -7,5 +7,6 @@ declare class AccountService extends Service {
     private verifyToken;
     private changePassword;
     private getInfo;
+    private checkAccountExist;
 }
 export default AccountService;

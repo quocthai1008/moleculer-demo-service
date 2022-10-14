@@ -22,6 +22,11 @@ let TaskHandler = class TaskHandler {
     constructor(taskModel) {
         this.taskModel = taskModel;
     }
+    async checkTaskExist(taskId) {
+        const model = await this.getTaskModel();
+        const check = await model.findOne({ _id: taskId }).select("_id").lean();
+        return check ? true : false;
+    }
     async getTaskModel() {
         if (!this.taskModel) {
             const db = await db_config_1.DbConfig.connectDb();

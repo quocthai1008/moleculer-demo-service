@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import {
 	TaskManager,
 	TaskManagerSchema,
+	TaskStatus,
 } from "../../schemas/task-mananger.schema";
 import { Pagination } from "../interfaces/pagination.interface";
 import { TaskManagerRepository } from "./task-manager.repository";
@@ -15,6 +16,13 @@ export class TaskManagerHandler implements TaskManagerRepository {
 		@InjectModel(TaskManager.name)
 		private taskManagerModel: mongoose.Model<TaskManager>
 	) {}
+
+	public async removeByTaskId(
+		taskId: mongoose.Types.ObjectId
+	): Promise<void> {
+		const model = await this.getTaskManagerModel();
+		await model.deleteMany({ taskId });
+	}
 
 	public async checkTaskManagerExist(
 		taskMangerId: mongoose.Types.ObjectId
@@ -65,14 +73,18 @@ export class TaskManagerHandler implements TaskManagerRepository {
 
 	public async taskList(
 		userId: mongoose.Types.ObjectId,
-		status: string,
+		status: number,
 		pageId: number,
 		pageSize: number
 	): Promise<Pagination<TaskManager>> {
 		const model = await this.getTaskManagerModel();
 
-		const queryObject = status ? { userId, status } : { userId };
-
+		const queryObject =
+			status === 0
+				? { userId, status: TaskStatus.NotDone }
+				: status === 1
+				? { userId, status: TaskStatus.Done }
+				: { userId };
 		const taskAmount: number = await model.countDocuments(queryObject);
 
 		const totalPage: number = Math.ceil(taskAmount / pageSize);
@@ -101,9 +113,12 @@ export class TaskManagerHandler implements TaskManagerRepository {
 		taskMangerId: mongoose.Types.ObjectId
 	): Promise<string> {
 		const model = await this.getTaskManagerModel();
-		const task = await model.updateOne({
-			_id: taskMangerId,
-		});
+		const task = await model.updateOne(
+			{
+				_id: taskMangerId,
+			},
+			{ status: TaskStatus.Done }
+		);
 		return task.matchedCount !== 0
 			? "Mark done successfully"
 			: "_id not match";
@@ -112,7 +127,7 @@ export class TaskManagerHandler implements TaskManagerRepository {
 	private async getTaskManagerModel() {
 		if (!this.taskManagerModel) {
 			const db = await DbConfig.connectDb();
-			this.taskManagerModel = db.model("task", TaskManagerSchema);
+			this.taskManagerModel = db.model("task-manager", TaskManagerSchema);
 		}
 		return this.taskManagerModel;
 	}

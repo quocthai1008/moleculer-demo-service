@@ -5,6 +5,7 @@ import { TaskRepository } from "./task.repository";
 export declare class TaskHandler implements TaskRepository {
     private taskModel;
     constructor(taskModel: mongoose.Model<Task>);
+    checkTaskExist(taskId: mongoose.Types.ObjectId): Promise<boolean>;
     private getTaskModel;
     create(name: string, detail: string, managerId: mongoose.Types.ObjectId): Promise<string>;
     update(taskId: mongoose.Types.ObjectId, name: string, detail: string): Promise<string>;

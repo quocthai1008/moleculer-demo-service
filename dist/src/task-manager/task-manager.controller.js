@@ -29,6 +29,15 @@ let TaskManagerController = TaskManagerController_1 = class TaskManagerControlle
     static markDone(taskMangerId) {
         return TaskManagerController_1.taskManagerHandler.markDone(taskMangerId);
     }
+    static checkTaskManagerExist(taskMangerId) {
+        return TaskManagerController_1.taskManagerHandler.checkTaskManagerExist(taskMangerId);
+    }
+    static checkTaskOwner(taskMangerId, userId) {
+        return TaskManagerController_1.taskManagerHandler.checkTaskOwner(taskMangerId, userId);
+    }
+    static removeByTaskId(taskId) {
+        TaskManagerController_1.taskManagerHandler.removeByTaskId(taskId);
+    }
 };
 TaskManagerController = TaskManagerController_1 = __decorate([
     (0, common_1.Controller)(),

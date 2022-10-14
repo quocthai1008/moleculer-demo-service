@@ -63,6 +63,9 @@ class AccountService extends moleculer_1.Service {
                 verifyToken: {
                     handler: this.verifyToken,
                 },
+                checkAccountExist: {
+                    handler: this.checkAccountExist,
+                },
             },
             dependencies: ["app"],
         });
@@ -81,7 +84,6 @@ class AccountService extends moleculer_1.Service {
         const { _id } = ctx.meta.user;
         const { fullName, address } = ctx.params;
         const res = await account_controller_1.AccountController.update(new mongoose_1.default.Types.ObjectId(_id), fullName, address);
-        console.log(res);
         return res;
     }
     async verifyToken(ctx) {
@@ -98,6 +100,11 @@ class AccountService extends moleculer_1.Service {
     async getInfo(ctx) {
         const { _id } = ctx.meta.user;
         const res = await account_controller_1.AccountController.getInfoById(new mongoose_1.default.Types.ObjectId(_id));
+        return res;
+    }
+    async checkAccountExist(ctx) {
+        const { userId } = ctx.params;
+        const res = await account_controller_1.AccountController.checkAccountExist(new mongoose_1.default.Types.ObjectId(userId));
         return res;
     }
 }

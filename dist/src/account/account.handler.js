@@ -24,6 +24,11 @@ let AccountHandler = class AccountHandler {
     constructor(accountModel) {
         this.accountModel = accountModel;
     }
+    async checkAccountExist(userId) {
+        const model = await this.getAccountModel();
+        const check = await model.findOne({ _id: userId }).select("_id").lean();
+        return check ? true : false;
+    }
     async update(userId, fullName, address) {
         const model = await this.getAccountModel();
         const result = await model.updateOne({ _id: userId }, { fullName, address });

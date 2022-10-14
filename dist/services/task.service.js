@@ -10,8 +10,8 @@ class TaskService extends moleculer_1.Service {
             name: "task",
             hooks: {
                 before: {
-                    update: [this.isManger],
-                    delete: [this.isManger],
+                    update: [this.checkTaskExistHook, this.isManger],
+                    delete: [this.checkTaskExistHook, this.isManger],
                     findAll: [this.checkPageParams],
                 },
             },
@@ -70,6 +70,9 @@ class TaskService extends moleculer_1.Service {
                     },
                     handler: this.findOne,
                 },
+                checkTaskExist: {
+                    handler: this.checkTaskExist,
+                },
             },
             dependencies: ["app"],
         });
@@ -88,11 +91,11 @@ class TaskService extends moleculer_1.Service {
     async delete(ctx) {
         const { taskId } = ctx.params;
         const res = await task_controller_1.TaskController.delete(new mongoose_1.default.Types.ObjectId(taskId));
+        this.broker.emit("task.delete", ctx.params);
         return res;
     }
     async findAll(ctx) {
         const { pageId, pageSize } = ctx.params;
-        console.log(ctx);
         const { _id } = ctx.meta.user;
         const res = await task_controller_1.TaskController.findAll(new mongoose_1.default.Types.ObjectId(_id), pageId, pageSize);
         return res;
@@ -110,10 +113,21 @@ class TaskService extends moleculer_1.Service {
             throw new Error("You not alow to do this");
         }
     }
+    async checkTaskExist(ctx) {
+        const { taskId } = ctx.params;
+        const res = await task_controller_1.TaskController.checkTaskExist(new mongoose_1.default.Types.ObjectId(taskId));
+        return res;
+    }
     checkPageParams(ctx) {
         const { pageId, pageSize } = ctx.params;
         if (pageId > pageSize || pageId <= 0) {
             throw Error("pageId invalid");
+        }
+    }
+    async checkTaskExistHook(ctx) {
+        const res = await this.checkTaskExist(ctx);
+        if (!res) {
+            throw Error("Task not found");
         }
     }
 }

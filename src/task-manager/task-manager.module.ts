@@ -1,14 +1,16 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { TaskManager } from "../../schemas/task-mananger.schema";
-import { TaskSchema } from "../../schemas/task.schema";
+import {
+	TaskManager,
+	TaskManagerSchema,
+} from "../../schemas/task-mananger.schema";
 import { TaskManagerController } from "./task-manager.controller";
 import { TaskManagerHandler } from "./task-manager.handler";
 
 @Module({
 	imports: [
 		MongooseModule.forFeature([
-			{ name: TaskManager.name, schema: TaskSchema },
+			{ name: TaskManager.name, schema: TaskManagerSchema },
 		]),
 	],
 	controllers: [TaskManagerController],

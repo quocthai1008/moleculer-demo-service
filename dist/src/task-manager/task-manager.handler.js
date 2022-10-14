@@ -22,6 +22,26 @@ let TaskManagerHandler = class TaskManagerHandler {
     constructor(taskManagerModel) {
         this.taskManagerModel = taskManagerModel;
     }
+    async removeByTaskId(taskId) {
+        const model = await this.getTaskManagerModel();
+        await model.deleteMany({ taskId });
+    }
+    async checkTaskManagerExist(taskMangerId) {
+        const model = await this.getTaskManagerModel();
+        const check = await model
+            .findOne({ _id: taskMangerId })
+            .select("_id")
+            .lean();
+        return check ? true : false;
+    }
+    async checkTaskOwner(taskMangerId, userId) {
+        const model = await this.getTaskManagerModel();
+        const check = await model
+            .findOne({ _id: taskMangerId, userId })
+            .select("_id")
+            .lean();
+        return check ? true : false;
+    }
     async assign(taskId, userId) {
         const model = await this.getTaskManagerModel();
         const task = await model.create({
@@ -41,7 +61,11 @@ let TaskManagerHandler = class TaskManagerHandler {
     }
     async taskList(userId, status, pageId, pageSize) {
         const model = await this.getTaskManagerModel();
-        const queryObject = status ? { userId, status } : { userId };
+        const queryObject = status === 0
+            ? { userId, status: task_mananger_schema_1.TaskStatus.NotDone }
+            : status === 1
+                ? { userId, status: task_mananger_schema_1.TaskStatus.Done }
+                : { userId };
         const taskAmount = await model.countDocuments(queryObject);
         const totalPage = Math.ceil(taskAmount / pageSize);
         const tasks = 0 < pageId && pageId <= totalPage
@@ -65,7 +89,7 @@ let TaskManagerHandler = class TaskManagerHandler {
         const model = await this.getTaskManagerModel();
         const task = await model.updateOne({
             _id: taskMangerId,
-        });
+        }, { status: task_mananger_schema_1.TaskStatus.Done });
         return task.matchedCount !== 0
             ? "Mark done successfully"
             : "_id not match";
@@ -73,7 +97,7 @@ let TaskManagerHandler = class TaskManagerHandler {
     async getTaskManagerModel() {
         if (!this.taskManagerModel) {
             const db = await db_config_1.DbConfig.connectDb();
-            this.taskManagerModel = db.model("task", task_mananger_schema_1.TaskManagerSchema);
+            this.taskManagerModel = db.model("task-manager", task_mananger_schema_1.TaskManagerSchema);
         }
         return this.taskManagerModel;
     }

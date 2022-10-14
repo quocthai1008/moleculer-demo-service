@@ -1,6 +1,6 @@
 import { Service, ServiceBroker } from "moleculer";
 import mongoose from "mongoose";
-import { TaskManagerController } from "src/task-manager/task-manager.controller";
+import { TaskManagerController } from "../src/task-manager/task-manager.controller";
 
 class TaskManagerService extends Service {
 	constructor(broker: ServiceBroker) {
@@ -46,9 +46,9 @@ class TaskManagerService extends Service {
 					},
 					params: {
 						userId: "string",
-						status: "string",
-						pageId: "string",
-						pageSize: "string",
+						status: "number",
+						pageId: "number",
+						pageSize: "number",
 					},
 					handler: this.taskList,
 				},
@@ -62,6 +62,9 @@ class TaskManagerService extends Service {
 					},
 					handler: this.markDone,
 				},
+			},
+			events: {
+				"task.delete": this.handleTaskDelete,
 			},
 			dependencies: ["app"],
 		});
@@ -87,7 +90,7 @@ class TaskManagerService extends Service {
 	private async taskList(ctx: any) {
 		const { userId, status, pageId, pageSize } = ctx.params;
 		const res = await TaskManagerController.taskList(
-			userId,
+			new mongoose.Types.ObjectId(userId),
 			status,
 			pageId,
 			pageSize
@@ -97,13 +100,18 @@ class TaskManagerService extends Service {
 
 	private async markDone(ctx: any) {
 		const { taskManagerId } = ctx.params;
-		const res = await TaskManagerController.markDone(taskManagerId);
+		const res = await TaskManagerController.markDone(
+			new mongoose.Types.ObjectId(taskManagerId)
+		);
 		return res;
 	}
 
 	private async assignHook(ctx: any) {
-		const condition1 = await ctx.call("account.checkAccountExist", ctx);
-		const condition2 = await ctx.call("task.checkTaskExist", ctx);
+		const condition1 = await ctx.call(
+			"account.checkAccountExist",
+			ctx.params
+		);
+		const condition2 = await ctx.call("task.checkTaskExist", ctx.params);
 		if (!condition1 || !condition2) {
 			throw new Error("Account or Task not found");
 		}
@@ -129,6 +137,13 @@ class TaskManagerService extends Service {
 		if (!res) {
 			throw new Error("You not alow to do this");
 		}
+	}
+
+	private handleTaskDelete(ctx: any) {
+		const { taskId } = ctx.params;
+		TaskManagerController.removeByTaskId(
+			new mongoose.Types.ObjectId(taskId)
+		);
 	}
 }
 

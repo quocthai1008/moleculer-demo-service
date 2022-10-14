@@ -12,7 +12,7 @@ export interface TaskManagerRepository {
 
 	taskList(
 		userId: mongoose.Types.ObjectId,
-		status: string,
+		status: number,
 		pageId: number,
 		pageSize: number
 	): Promise<Pagination<TaskManager>>;
@@ -27,4 +27,6 @@ export interface TaskManagerRepository {
 		taskMangerId: mongoose.Types.ObjectId,
 		userId: mongoose.Types.ObjectId
 	): Promise<boolean>;
+
+	removeByTaskId(taskId: mongoose.Types.ObjectId): Promise<void>;
 }

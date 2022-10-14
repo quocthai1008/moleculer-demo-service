@@ -35,6 +35,9 @@ let AccountController = AccountController_1 = class AccountController {
     static changePassword(userId, username, oldPassword, newPassword) {
         return AccountController_1.accountHandler.changePassword(userId, username, oldPassword, newPassword);
     }
+    static checkAccountExist(userId) {
+        return AccountController_1.accountHandler.checkAccountExist(userId);
+    }
 };
 AccountController = AccountController_1 = __decorate([
     (0, common_1.Controller)(),

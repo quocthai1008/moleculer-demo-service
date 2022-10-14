@@ -10,7 +10,6 @@ exports.TaskManagerModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const task_mananger_schema_1 = require("../../schemas/task-mananger.schema");
-const task_schema_1 = require("../../schemas/task.schema");
 const task_manager_controller_1 = require("./task-manager.controller");
 const task_manager_handler_1 = require("./task-manager.handler");
 let TaskManagerModule = class TaskManagerModule {
@@ -19,7 +18,7 @@ TaskManagerModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([
-                { name: task_mananger_schema_1.TaskManager.name, schema: task_schema_1.TaskSchema },
+                { name: task_mananger_schema_1.TaskManager.name, schema: task_mananger_schema_1.TaskManagerSchema },
             ]),
         ],
         controllers: [task_manager_controller_1.TaskManagerController],

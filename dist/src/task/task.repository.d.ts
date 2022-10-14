@@ -8,4 +8,5 @@ export interface TaskRepository {
     findAll(managerId: mongoose.Types.ObjectId, pageId: number, pageSize: number): Promise<Pagination<Task>>;
     findOne(taskId: mongoose.Types.ObjectId): Promise<Task>;
     isManager(taskId: mongoose.Types.ObjectId, managerId: mongoose.Types.ObjectId): Promise<boolean>;
+    checkTaskExist(taskId: mongoose.Types.ObjectId): Promise<boolean>;
 }

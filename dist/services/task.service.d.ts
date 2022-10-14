@@ -7,6 +7,8 @@ declare class TaskService extends Service {
     private findAll;
     private findOne;
     private isManger;
+    private checkTaskExist;
     private checkPageParams;
+    private checkTaskExistHook;
 }
 export default TaskService;

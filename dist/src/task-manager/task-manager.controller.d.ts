@@ -7,6 +7,9 @@ export declare class TaskManagerController {
     constructor(taskManagerHandler: TaskManagerHandler);
     static assign(taskId: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId): Promise<string>;
     static remove(taskManagerId: mongoose.Types.ObjectId): Promise<string>;
-    static taskList(userId: mongoose.Types.ObjectId, status: string, pageId: number, pageSize: number): Promise<Pagination<TaskManager>>;
+    static taskList(userId: mongoose.Types.ObjectId, status: number, pageId: number, pageSize: number): Promise<Pagination<TaskManager>>;
     static markDone(taskMangerId: mongoose.Types.ObjectId): Promise<string>;
+    static checkTaskManagerExist(taskMangerId: mongoose.Types.ObjectId): Promise<boolean>;
+    static checkTaskOwner(taskMangerId: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId): Promise<boolean>;
+    static removeByTaskId(taskId: mongoose.Types.ObjectId): void;
 }

@@ -13,10 +13,7 @@ export class Account {
 
 	@Prop({ required: true })
 	password: string;
-
-	@Prop({ default: "" })
-	refreshToken: string;
-
+	
 	@Prop({ default: "" })
 	fullName: string;
 

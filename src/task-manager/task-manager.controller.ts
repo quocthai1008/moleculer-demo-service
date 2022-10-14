@@ -25,7 +25,7 @@ export class TaskManagerController {
 
 	static taskList(
 		userId: mongoose.Types.ObjectId,
-		status: string,
+		status: number,
 		pageId: number,
 		pageSize: number
 	): Promise<Pagination<TaskManager>> {
@@ -57,5 +57,9 @@ export class TaskManagerController {
 			taskMangerId,
 			userId
 		);
+	}
+
+	static removeByTaskId(taskId: mongoose.Types.ObjectId) {
+		TaskManagerController.taskManagerHandler.removeByTaskId(taskId);
 	}
 }

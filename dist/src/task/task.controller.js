@@ -35,6 +35,9 @@ let TaskController = TaskController_1 = class TaskController {
     static isManager(taskId, managerId) {
         return TaskController_1.taskHandler.isManager(taskId, managerId);
     }
+    static checkTaskExist(taskId) {
+        return TaskController_1.taskHandler.checkTaskExist(taskId);
+    }
 };
 TaskController = TaskController_1 = __decorate([
     (0, common_1.Controller)(),

@@ -16,8 +16,8 @@ class TaskService extends Service {
 
 			hooks: {
 				before: {
-					update: [this.isManger, this.checkTaskExistHook],
-					delete: [this.isManger, this.checkTaskExistHook],
+					update: [this.checkTaskExistHook, this.isManger],
+					delete: [this.checkTaskExistHook, this.isManger],
 					findAll: [this.checkPageParams],
 				},
 			},
@@ -111,6 +111,7 @@ class TaskService extends Service {
 		const res = await TaskController.delete(
 			new mongoose.Types.ObjectId(taskId)
 		);
+		this.broker.emit("task.delete", ctx.params);
 		return res;
 	}
 
@@ -161,7 +162,7 @@ class TaskService extends Service {
 	}
 
 	private async checkTaskExistHook(ctx: any) {
-		const res = this.checkTaskExist(ctx);
+		const res = await this.checkTaskExist(ctx);
 		if (!res) {
 			throw Error("Task not found");
 		}
