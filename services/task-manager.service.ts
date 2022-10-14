@@ -1,8 +1,9 @@
 import { Service, ServiceBroker } from "moleculer";
 import mongoose from "mongoose";
-import { TaskManagerController } from "../src/task-manager/task-manager.controller";
+import { TaskManagerHandler } from "../src/task-manager/task-manager.handler";
 
 class TaskManagerService extends Service {
+	private appService: TaskManagerHandler;
 	constructor(broker: ServiceBroker) {
 		super(broker);
 
@@ -66,13 +67,14 @@ class TaskManagerService extends Service {
 			events: {
 				"task.delete": this.handleTaskDelete,
 			},
+			started: this.started,
 			dependencies: ["app"],
 		});
 	}
 
 	private async assign(ctx: any) {
 		const { taskId, userId } = ctx.params;
-		const res = await TaskManagerController.assign(
+		const res = await this.appService.assign(
 			new mongoose.Types.ObjectId(taskId),
 			new mongoose.Types.ObjectId(userId)
 		);
@@ -81,7 +83,7 @@ class TaskManagerService extends Service {
 
 	private async remove(ctx: any) {
 		const { taskManagerId } = ctx.params;
-		const res = await TaskManagerController.remove(
+		const res = await this.appService.remove(
 			new mongoose.Types.ObjectId(taskManagerId)
 		);
 		return res;
@@ -89,7 +91,7 @@ class TaskManagerService extends Service {
 
 	private async taskList(ctx: any) {
 		const { userId, status, pageId, pageSize } = ctx.params;
-		const res = await TaskManagerController.taskList(
+		const res = await this.appService.taskList(
 			new mongoose.Types.ObjectId(userId),
 			status,
 			pageId,
@@ -100,7 +102,7 @@ class TaskManagerService extends Service {
 
 	private async markDone(ctx: any) {
 		const { taskManagerId } = ctx.params;
-		const res = await TaskManagerController.markDone(
+		const res = await this.appService.markDone(
 			new mongoose.Types.ObjectId(taskManagerId)
 		);
 		return res;
@@ -119,7 +121,7 @@ class TaskManagerService extends Service {
 
 	private async checkTaskManagerExist(ctx: any) {
 		const { taskManagerId } = ctx.params;
-		const res = await TaskManagerController.checkTaskManagerExist(
+		const res = await this.appService.checkTaskManagerExist(
 			new mongoose.Types.ObjectId(taskManagerId)
 		);
 		if (!res) {
@@ -130,7 +132,7 @@ class TaskManagerService extends Service {
 	private async checkTaskOwner(ctx: any) {
 		const { taskManagerId } = ctx.params;
 		const { _id } = ctx.meta.user;
-		const res = await TaskManagerController.checkTaskOwner(
+		const res = await this.appService.checkTaskOwner(
 			new mongoose.Types.ObjectId(taskManagerId),
 			new mongoose.Types.ObjectId(_id)
 		);
@@ -141,9 +143,13 @@ class TaskManagerService extends Service {
 
 	private handleTaskDelete(ctx: any) {
 		const { taskId } = ctx.params;
-		TaskManagerController.removeByTaskId(
-			new mongoose.Types.ObjectId(taskId)
-		);
+		this.appService.removeByTaskId(new mongoose.Types.ObjectId(taskId));
+	}
+
+	async started() {
+		this.appService = await this.broker.call("app.getAppService", {
+			service: "task-manager",
+		});
 	}
 }
 

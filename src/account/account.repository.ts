@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Account } from "schemas/account.schema";
+import { Account } from "src/schemas/account.schema";
 import { JwtPayload } from "jsonwebtoken";
 
 export interface AccountRepository {

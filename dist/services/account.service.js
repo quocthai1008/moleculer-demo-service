@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const moleculer_1 = require("moleculer");
 const mongoose_1 = require("mongoose");
-const account_controller_1 = require("../src/account/account.controller");
 class AccountService extends moleculer_1.Service {
     constructor(broker) {
         super(broker);
@@ -67,45 +66,51 @@ class AccountService extends moleculer_1.Service {
                     handler: this.checkAccountExist,
                 },
             },
+            started: this.started,
             dependencies: ["app"],
         });
     }
     async register(ctx) {
         const { username, password } = ctx.params;
-        const res = await account_controller_1.AccountController.register(username, password);
+        const res = await this.appService.register(username, password);
         return res;
     }
     async login(ctx) {
         const { username, password } = ctx.params;
-        const res = await account_controller_1.AccountController.login(username, password);
+        const res = await this.appService.login(username, password);
         return res;
     }
     async update(ctx) {
         const { _id } = ctx.meta.user;
         const { fullName, address } = ctx.params;
-        const res = await account_controller_1.AccountController.update(new mongoose_1.default.Types.ObjectId(_id), fullName, address);
+        const res = await this.appService.update(new mongoose_1.default.Types.ObjectId(_id), fullName, address);
         return res;
     }
     async verifyToken(ctx) {
         const { token } = ctx.params;
-        const res = account_controller_1.AccountController.verifyToken(token);
+        const res = this.appService.verifyToken(token);
         return res;
     }
     async changePassword(ctx) {
         const { oldPassword, newPassword } = ctx.params;
         const { _id, username } = ctx.meta.user;
-        const res = await account_controller_1.AccountController.changePassword(new mongoose_1.default.Types.ObjectId(_id), username, oldPassword, newPassword);
+        const res = await this.appService.changePassword(new mongoose_1.default.Types.ObjectId(_id), username, oldPassword, newPassword);
         return res;
     }
     async getInfo(ctx) {
         const { _id } = ctx.meta.user;
-        const res = await account_controller_1.AccountController.getInfoById(new mongoose_1.default.Types.ObjectId(_id));
+        const res = this.appService.getAccountById(new mongoose_1.default.Types.ObjectId(_id));
         return res;
     }
     async checkAccountExist(ctx) {
         const { userId } = ctx.params;
-        const res = await account_controller_1.AccountController.checkAccountExist(new mongoose_1.default.Types.ObjectId(userId));
+        const res = await this.appService.checkAccountExist(new mongoose_1.default.Types.ObjectId(userId));
         return res;
+    }
+    async started() {
+        this.appService = await this.broker.call("app.getAppService", {
+            service: "account",
+        });
     }
 }
 exports.default = AccountService;

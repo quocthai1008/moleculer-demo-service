@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const moleculer_1 = require("moleculer");
 const mongoose_1 = require("mongoose");
-const task_controller_1 = require("../src/task/task.controller");
 class TaskService extends moleculer_1.Service {
     constructor(broker) {
         super(broker);
@@ -74,48 +73,49 @@ class TaskService extends moleculer_1.Service {
                     handler: this.checkTaskExist,
                 },
             },
+            started: this.started,
             dependencies: ["app"],
         });
     }
     async create(ctx) {
         const { name, detail } = ctx.params;
         const { _id } = ctx.meta.user;
-        const res = await task_controller_1.TaskController.create(name, detail, new mongoose_1.default.Types.ObjectId(_id));
+        const res = await this.appService.create(name, detail, new mongoose_1.default.Types.ObjectId(_id));
         return res;
     }
     async update(ctx) {
         const { taskId, name, detail } = ctx.params;
-        const res = await task_controller_1.TaskController.update(new mongoose_1.default.Types.ObjectId(taskId), name, detail);
+        const res = await this.appService.update(new mongoose_1.default.Types.ObjectId(taskId), name, detail);
         return res;
     }
     async delete(ctx) {
         const { taskId } = ctx.params;
-        const res = await task_controller_1.TaskController.delete(new mongoose_1.default.Types.ObjectId(taskId));
+        const res = await this.appService.delete(new mongoose_1.default.Types.ObjectId(taskId));
         this.broker.emit("task.delete", ctx.params);
         return res;
     }
     async findAll(ctx) {
         const { pageId, pageSize } = ctx.params;
         const { _id } = ctx.meta.user;
-        const res = await task_controller_1.TaskController.findAll(new mongoose_1.default.Types.ObjectId(_id), pageId, pageSize);
+        const res = await this.appService.findAll(new mongoose_1.default.Types.ObjectId(_id), pageId, pageSize);
         return res;
     }
     async findOne(ctx) {
         const { taskId } = ctx.params;
-        const res = await task_controller_1.TaskController.findOne(new mongoose_1.default.Types.ObjectId(taskId));
+        const res = await this.appService.findOne(new mongoose_1.default.Types.ObjectId(taskId));
         return res;
     }
     async isManger(ctx) {
         const { taskId } = ctx.params;
         const { _id } = ctx.meta.user;
-        const res = await task_controller_1.TaskController.isManager(new mongoose_1.default.Types.ObjectId(taskId), new mongoose_1.default.Types.ObjectId(_id));
+        const res = await this.appService.isManager(new mongoose_1.default.Types.ObjectId(taskId), new mongoose_1.default.Types.ObjectId(_id));
         if (!res) {
             throw new Error("You not alow to do this");
         }
     }
     async checkTaskExist(ctx) {
         const { taskId } = ctx.params;
-        const res = await task_controller_1.TaskController.checkTaskExist(new mongoose_1.default.Types.ObjectId(taskId));
+        const res = await this.appService.checkTaskExist(new mongoose_1.default.Types.ObjectId(taskId));
         return res;
     }
     checkPageParams(ctx) {
@@ -129,6 +129,11 @@ class TaskService extends moleculer_1.Service {
         if (!res) {
             throw Error("Task not found");
         }
+    }
+    async started() {
+        this.appService = await this.broker.call("app.getAppService", {
+            service: "task",
+        });
     }
 }
 exports.default = TaskService;

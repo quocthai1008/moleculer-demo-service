@@ -15,28 +15,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskHandler = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const db_config_1 = require("../../config/db.config");
 const mongoose_2 = require("mongoose");
-const task_schema_1 = require("../../schemas/task.schema");
+const task_schema_1 = require("../schemas/task.schema");
 let TaskHandler = class TaskHandler {
     constructor(taskModel) {
         this.taskModel = taskModel;
     }
     async checkTaskExist(taskId) {
-        const model = await this.getTaskModel();
-        const check = await model.findOne({ _id: taskId }).select("_id").lean();
+        const check = await this.taskModel
+            .findOne({ _id: taskId })
+            .select("_id")
+            .lean();
         return check ? true : false;
     }
-    async getTaskModel() {
-        if (!this.taskModel) {
-            const db = await db_config_1.DbConfig.connectDb();
-            this.taskModel = db.model("task", task_schema_1.TaskSchema);
-        }
-        return this.taskModel;
-    }
     async create(name, detail, managerId) {
-        const model = await this.getTaskModel();
-        const task = await model.create({
+        const task = await this.taskModel.create({
             _id: new mongoose_2.default.Types.ObjectId(),
             name,
             detail,
@@ -46,8 +39,7 @@ let TaskHandler = class TaskHandler {
         return "Create task successfully";
     }
     async update(taskId, name, detail) {
-        const model = await this.getTaskModel();
-        const task = await model.updateOne({
+        const task = await this.taskModel.updateOne({
             _id: taskId,
         }, { name, detail });
         return task.matchedCount !== 0
@@ -55,18 +47,18 @@ let TaskHandler = class TaskHandler {
             : "_id not match";
     }
     async delete(taskId) {
-        const model = await this.getTaskModel();
-        await model.deleteOne({
+        await this.taskModel.deleteOne({
             _id: taskId,
         });
         return "Delete task successfully";
     }
     async findAll(managerId, pageId, pageSize) {
-        const model = await this.getTaskModel();
-        const taskAmount = await model.countDocuments({ managerId });
+        const taskAmount = await this.taskModel.countDocuments({
+            managerId,
+        });
         const totalPage = Math.ceil(taskAmount / pageSize);
         const tasks = 0 < pageId && pageId <= totalPage
-            ? await model
+            ? await this.taskModel
                 .find({ managerId })
                 .lean()
                 .sort({ createdAt: -1 })
@@ -83,13 +75,11 @@ let TaskHandler = class TaskHandler {
         };
     }
     async findOne(taskId) {
-        const model = await this.getTaskModel();
-        const task = await model.findById(taskId);
+        const task = await this.taskModel.findById(taskId);
         return task;
     }
     async isManager(taskId, managerId) {
-        const model = await this.getTaskModel();
-        const task = await model.findOne({ _id: taskId, managerId });
+        const task = await this.taskModel.findOne({ _id: taskId, managerId });
         return task ? true : false;
     }
 };

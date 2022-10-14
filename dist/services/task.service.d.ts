@@ -1,5 +1,6 @@
 import { Service, ServiceBroker } from "moleculer";
 declare class TaskService extends Service {
+    private appService;
     constructor(broker: ServiceBroker);
     private create;
     private update;
@@ -10,5 +11,6 @@ declare class TaskService extends Service {
     private checkTaskExist;
     private checkPageParams;
     private checkTaskExistHook;
+    started(): Promise<void>;
 }
 export default TaskService;

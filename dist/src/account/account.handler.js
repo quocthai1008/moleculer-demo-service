@@ -15,9 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AccountHandler = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("mongoose");
-const db_config_1 = require("../../config/db.config");
 const mongoose_2 = require("@nestjs/mongoose");
-const account_schema_1 = require("../../schemas/account.schema");
+const account_schema_1 = require("../schemas/account.schema");
 const bcryptjs_1 = require("bcryptjs");
 const jsonwebtoken_1 = require("jsonwebtoken");
 let AccountHandler = class AccountHandler {
@@ -25,48 +24,39 @@ let AccountHandler = class AccountHandler {
         this.accountModel = accountModel;
     }
     async checkAccountExist(userId) {
-        const model = await this.getAccountModel();
-        const check = await model.findOne({ _id: userId }).select("_id").lean();
+        const check = await this.accountModel
+            .findOne({ _id: userId })
+            .select("_id")
+            .lean();
         return check ? true : false;
     }
     async update(userId, fullName, address) {
-        const model = await this.getAccountModel();
-        const result = await model.updateOne({ _id: userId }, { fullName, address });
+        const result = await this.accountModel.updateOne({ _id: userId }, { fullName, address });
         return result.matchedCount !== 0
             ? "Update user success"
             : "_id not match";
     }
     async changePassword(userId, username, oldPassword, newPassword) {
-        const model = await this.getAccountModel();
         const account = await this.getAccountByName(username);
         const check = await (0, bcryptjs_1.compare)(oldPassword, account.password);
         if (!check) {
             return "Old password invalid";
         }
         const hashPassword = await (0, bcryptjs_1.hash)(newPassword, 10);
-        const result = await model.updateOne({ _id: userId }, { password: hashPassword });
+        const result = await this.accountModel.updateOne({ _id: userId }, { password: hashPassword });
         return result.matchedCount !== 0
             ? "Update password success"
             : "_id not match";
     }
     async getAccountById(userId) {
-        const model = await this.getAccountModel();
-        const account = await model
+        const account = await this.accountModel
             .findOne({ _id: userId })
             .select("-password -refreshToken");
         return account;
     }
-    async getAccountModel() {
-        if (!this.accountModel) {
-            const db = await db_config_1.DbConfig.connectDb();
-            this.accountModel = db.model("account", account_schema_1.AccountSchema);
-        }
-        return this.accountModel;
-    }
     async register(username, password) {
-        const model = await this.getAccountModel();
         const hashPassword = await (0, bcryptjs_1.hash)(password, 10);
-        const user = await model.create({
+        const user = await this.accountModel.create({
             _id: new mongoose_1.default.Types.ObjectId(),
             username,
             password: hashPassword,
@@ -91,8 +81,7 @@ let AccountHandler = class AccountHandler {
         return decoded;
     }
     async getAccountByName(username) {
-        const model = await this.getAccountModel();
-        const account = await model.findOne({ username });
+        const account = await this.accountModel.findOne({ username });
         return account;
     }
 };

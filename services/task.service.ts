@@ -1,13 +1,15 @@
 import { Service, ServiceBroker } from "moleculer";
 import mongoose from "mongoose";
+import { TaskHandler } from "../src/task/task.handler";
 import { CreateTaskDto } from "../src/task/dto/create-task.dto";
 import { DeleteTaskDto } from "../src/task/dto/delete-task.dto";
 import { FindAllTaskDto } from "../src/task/dto/find-all-task.dto";
 import { FindOneTaskDto } from "../src/task/dto/find-one-task.dto";
 import { UpdateTaskDto } from "../src/task/dto/update-task.dto";
-import { TaskController } from "../src/task/task.controller";
 
 class TaskService extends Service {
+	private appService: TaskHandler;
+
 	constructor(broker: ServiceBroker) {
 		super(broker);
 
@@ -81,6 +83,7 @@ class TaskService extends Service {
 					handler: this.checkTaskExist,
 				},
 			},
+			started: this.started,
 			dependencies: ["app"],
 		});
 	}
@@ -88,7 +91,7 @@ class TaskService extends Service {
 	private async create(ctx: any) {
 		const { name, detail }: CreateTaskDto = ctx.params;
 		const { _id } = ctx.meta.user;
-		const res = await TaskController.create(
+		const res = await this.appService.create(
 			name,
 			detail,
 			new mongoose.Types.ObjectId(_id)
@@ -98,7 +101,7 @@ class TaskService extends Service {
 
 	private async update(ctx: any) {
 		const { taskId, name, detail }: UpdateTaskDto = ctx.params;
-		const res = await TaskController.update(
+		const res = await this.appService.update(
 			new mongoose.Types.ObjectId(taskId),
 			name,
 			detail
@@ -108,7 +111,7 @@ class TaskService extends Service {
 
 	private async delete(ctx: any) {
 		const { taskId }: DeleteTaskDto = ctx.params;
-		const res = await TaskController.delete(
+		const res = await this.appService.delete(
 			new mongoose.Types.ObjectId(taskId)
 		);
 		this.broker.emit("task.delete", ctx.params);
@@ -118,7 +121,7 @@ class TaskService extends Service {
 	private async findAll(ctx: any) {
 		const { pageId, pageSize }: FindAllTaskDto = ctx.params;
 		const { _id } = ctx.meta.user;
-		const res = await TaskController.findAll(
+		const res = await this.appService.findAll(
 			new mongoose.Types.ObjectId(_id),
 			pageId,
 			pageSize
@@ -128,7 +131,7 @@ class TaskService extends Service {
 
 	private async findOne(ctx: any) {
 		const { taskId }: FindOneTaskDto = ctx.params;
-		const res = await TaskController.findOne(
+		const res = await this.appService.findOne(
 			new mongoose.Types.ObjectId(taskId)
 		);
 		return res;
@@ -137,7 +140,7 @@ class TaskService extends Service {
 	private async isManger(ctx: any): Promise<void> {
 		const { taskId } = ctx.params;
 		const { _id } = ctx.meta.user;
-		const res = await TaskController.isManager(
+		const res = await this.appService.isManager(
 			new mongoose.Types.ObjectId(taskId),
 			new mongoose.Types.ObjectId(_id)
 		);
@@ -148,7 +151,7 @@ class TaskService extends Service {
 
 	private async checkTaskExist(ctx: any) {
 		const { taskId } = ctx.params;
-		const res = await TaskController.checkTaskExist(
+		const res = await this.appService.checkTaskExist(
 			new mongoose.Types.ObjectId(taskId)
 		);
 		return res;
@@ -166,6 +169,12 @@ class TaskService extends Service {
 		if (!res) {
 			throw Error("Task not found");
 		}
+	}
+
+	async started() {
+		this.appService = await this.broker.call("app.getAppService", {
+			service: "task",
+		});
 	}
 }
 

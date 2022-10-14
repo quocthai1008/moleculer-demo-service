@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { AccountRepository } from "./account.repository";
-import { Account } from "../../schemas/account.schema";
+import { Account } from "../schemas/account.schema";
 import { JwtPayload } from "jsonwebtoken";
 export declare class AccountHandler implements AccountRepository {
     private accountModel;
@@ -9,7 +9,6 @@ export declare class AccountHandler implements AccountRepository {
     update(userId: mongoose.Types.ObjectId, fullName: string, address: string): Promise<string | Error>;
     changePassword(userId: mongoose.Types.ObjectId, username: string, oldPassword: string, newPassword: string): Promise<string>;
     getAccountById(userId: mongoose.Types.ObjectId): Promise<Account>;
-    private getAccountModel;
     register(username: string, password: string): Promise<string>;
     login(username: string, password: string): Promise<string>;
     verifyToken(token: string): JwtPayload | string;

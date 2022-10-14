@@ -9,8 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const task_schema_1 = require("../../schemas/task.schema");
-const task_controller_1 = require("./task.controller");
+const task_schema_1 = require("../schemas/task.schema");
 const task_handler_1 = require("./task.handler");
 let TaskModule = class TaskModule {
 };
@@ -19,7 +18,6 @@ TaskModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: task_schema_1.Task.name, schema: task_schema_1.TaskSchema }]),
         ],
-        controllers: [task_controller_1.TaskController],
         providers: [task_handler_1.TaskHandler],
     })
 ], TaskModule);

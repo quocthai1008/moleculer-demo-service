@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { DbConfig } from "../../config/db.config";
 import mongoose from "mongoose";
-import { Task, TaskSchema } from "../../schemas/task.schema";
+import { Task } from "../schemas/task.schema";
 import { Pagination } from "../interfaces/pagination.interface";
 import { TaskRepository } from "./task.repository";
 
@@ -16,17 +15,11 @@ export class TaskHandler implements TaskRepository {
 	public async checkTaskExist(
 		taskId: mongoose.Types.ObjectId
 	): Promise<boolean> {
-		const model = await this.getTaskModel();
-		const check = await model.findOne({ _id: taskId }).select("_id").lean();
+		const check = await this.taskModel
+			.findOne({ _id: taskId })
+			.select("_id")
+			.lean();
 		return check ? true : false;
-	}
-
-	private async getTaskModel() {
-		if (!this.taskModel) {
-			const db = await DbConfig.connectDb();
-			this.taskModel = db.model("task", TaskSchema);
-		}
-		return this.taskModel;
 	}
 
 	public async create(
@@ -34,8 +27,7 @@ export class TaskHandler implements TaskRepository {
 		detail: string,
 		managerId: mongoose.Types.ObjectId
 	): Promise<string> {
-		const model = await this.getTaskModel();
-		const task = await model.create({
+		const task = await this.taskModel.create({
 			_id: new mongoose.Types.ObjectId(),
 			name,
 			detail,
@@ -50,8 +42,7 @@ export class TaskHandler implements TaskRepository {
 		name: string,
 		detail: string
 	): Promise<string> {
-		const model = await this.getTaskModel();
-		const task = await model.updateOne(
+		const task = await this.taskModel.updateOne(
 			{
 				_id: taskId,
 			},
@@ -63,8 +54,7 @@ export class TaskHandler implements TaskRepository {
 	}
 
 	public async delete(taskId: mongoose.Types.ObjectId): Promise<string> {
-		const model = await this.getTaskModel();
-		await model.deleteOne({
+		await this.taskModel.deleteOne({
 			_id: taskId,
 		});
 		return "Delete task successfully";
@@ -75,15 +65,15 @@ export class TaskHandler implements TaskRepository {
 		pageId: number,
 		pageSize: number
 	): Promise<Pagination<Task>> {
-		const model = await this.getTaskModel();
-
-		const taskAmount: number = await model.countDocuments({ managerId });
+		const taskAmount: number = await this.taskModel.countDocuments({
+			managerId,
+		});
 
 		const totalPage: number = Math.ceil(taskAmount / pageSize);
 
 		const tasks =
 			0 < pageId && pageId <= totalPage
-				? await model
+				? await this.taskModel
 						.find({ managerId })
 						.lean()
 						.sort({ createdAt: -1 })
@@ -102,8 +92,7 @@ export class TaskHandler implements TaskRepository {
 	}
 
 	public async findOne(taskId: mongoose.Types.ObjectId): Promise<Task> {
-		const model = await this.getTaskModel();
-		const task = await model.findById(taskId);
+		const task = await this.taskModel.findById(taskId);
 		return task;
 	}
 
@@ -111,8 +100,7 @@ export class TaskHandler implements TaskRepository {
 		taskId: mongoose.Types.ObjectId,
 		managerId: mongoose.Types.ObjectId
 	): Promise<boolean> {
-		const model = await this.getTaskModel();
-		const task = await model.findOne({ _id: taskId, managerId });
+		const task = await this.taskModel.findOne({ _id: taskId, managerId });
 		return task ? true : false;
 	}
 }

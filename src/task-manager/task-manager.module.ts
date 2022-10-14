@@ -3,8 +3,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import {
 	TaskManager,
 	TaskManagerSchema,
-} from "../../schemas/task-mananger.schema";
-import { TaskManagerController } from "./task-manager.controller";
+} from "../schemas/task-mananger.schema";
 import { TaskManagerHandler } from "./task-manager.handler";
 
 @Module({
@@ -13,7 +12,6 @@ import { TaskManagerHandler } from "./task-manager.handler";
 			{ name: TaskManager.name, schema: TaskManagerSchema },
 		]),
 	],
-	controllers: [TaskManagerController],
 	providers: [TaskManagerHandler],
 })
 export class TaskManagerModule {}

@@ -4,7 +4,6 @@ export declare class Account {
     _id: mongoose.Types.ObjectId;
     username: string;
     password: string;
-    refreshToken: string;
     fullName: string;
     address: string;
 }

@@ -29,10 +29,6 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ default: "" }),
     __metadata("design:type", String)
-], Account.prototype, "refreshToken", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ default: "" }),
-    __metadata("design:type", String)
 ], Account.prototype, "fullName", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: "" }),

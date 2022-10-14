@@ -1,12 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { DbConfig } from "../../config/db.config";
 import mongoose from "mongoose";
 import {
 	TaskManager,
 	TaskManagerSchema,
 	TaskStatus,
-} from "../../schemas/task-mananger.schema";
+} from "../schemas/task-mananger.schema";
 import { Pagination } from "../interfaces/pagination.interface";
 import { TaskManagerRepository } from "./task-manager.repository";
 
@@ -20,15 +19,13 @@ export class TaskManagerHandler implements TaskManagerRepository {
 	public async removeByTaskId(
 		taskId: mongoose.Types.ObjectId
 	): Promise<void> {
-		const model = await this.getTaskManagerModel();
-		await model.deleteMany({ taskId });
+		await this.taskManagerModel.deleteMany({ taskId });
 	}
 
 	public async checkTaskManagerExist(
 		taskMangerId: mongoose.Types.ObjectId
 	): Promise<boolean> {
-		const model = await this.getTaskManagerModel();
-		const check = await model
+		const check = await this.taskManagerModel
 			.findOne({ _id: taskMangerId })
 			.select("_id")
 			.lean();
@@ -39,8 +36,7 @@ export class TaskManagerHandler implements TaskManagerRepository {
 		taskMangerId: mongoose.Types.ObjectId,
 		userId: mongoose.Types.ObjectId
 	): Promise<boolean> {
-		const model = await this.getTaskManagerModel();
-		const check = await model
+		const check = await this.taskManagerModel
 			.findOne({ _id: taskMangerId, userId })
 			.select("_id")
 			.lean();
@@ -51,8 +47,7 @@ export class TaskManagerHandler implements TaskManagerRepository {
 		taskId: mongoose.Types.ObjectId,
 		userId: mongoose.Types.ObjectId
 	): Promise<string> {
-		const model = await this.getTaskManagerModel();
-		const task = await model.create({
+		const task = await this.taskManagerModel.create({
 			_id: new mongoose.Types.ObjectId(),
 			taskId,
 			userId,
@@ -64,8 +59,7 @@ export class TaskManagerHandler implements TaskManagerRepository {
 	public async remove(
 		taskManagerId: mongoose.Types.ObjectId
 	): Promise<string> {
-		const model = await this.getTaskManagerModel();
-		await model.deleteOne({
+		await this.taskManagerModel.deleteOne({
 			_id: taskManagerId,
 		});
 		return "Remove task successfully";
@@ -77,21 +71,19 @@ export class TaskManagerHandler implements TaskManagerRepository {
 		pageId: number,
 		pageSize: number
 	): Promise<Pagination<TaskManager>> {
-		const model = await this.getTaskManagerModel();
-
 		const queryObject =
 			status === 0
 				? { userId, status: TaskStatus.NotDone }
 				: status === 1
 				? { userId, status: TaskStatus.Done }
 				: { userId };
-		const taskAmount: number = await model.countDocuments(queryObject);
+		const taskAmount: number = await this.taskManagerModel.countDocuments(queryObject);
 
 		const totalPage: number = Math.ceil(taskAmount / pageSize);
 
 		const tasks =
 			0 < pageId && pageId <= totalPage
-				? await model
+				? await this.taskManagerModel
 						.find(queryObject)
 						.lean()
 						.sort({ createdAt: -1 })
@@ -112,8 +104,7 @@ export class TaskManagerHandler implements TaskManagerRepository {
 	public async markDone(
 		taskMangerId: mongoose.Types.ObjectId
 	): Promise<string> {
-		const model = await this.getTaskManagerModel();
-		const task = await model.updateOne(
+		const task = await this.taskManagerModel.updateOne(
 			{
 				_id: taskMangerId,
 			},
@@ -122,13 +113,5 @@ export class TaskManagerHandler implements TaskManagerRepository {
 		return task.matchedCount !== 0
 			? "Mark done successfully"
 			: "_id not match";
-	}
-
-	private async getTaskManagerModel() {
-		if (!this.taskManagerModel) {
-			const db = await DbConfig.connectDb();
-			this.taskManagerModel = db.model("task-manager", TaskManagerSchema);
-		}
-		return this.taskManagerModel;
 	}
 }

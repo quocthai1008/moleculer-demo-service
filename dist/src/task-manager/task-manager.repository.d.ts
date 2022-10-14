@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Pagination } from "../interfaces/pagination.interface";
-import { TaskManager } from "../../schemas/task-mananger.schema";
+import { TaskManager } from "../schemas/task-mananger.schema";
 export interface TaskManagerRepository {
     assign(taskId: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId): Promise<string>;
     remove(taskManagerId: mongoose.Types.ObjectId): Promise<string>;

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Task } from "../../schemas/task.schema";
+import { Task } from "../schemas/task.schema";
 import { Pagination } from "../interfaces/pagination.interface";
 
 export interface TaskRepository {

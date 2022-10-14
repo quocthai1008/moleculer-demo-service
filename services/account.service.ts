@@ -2,10 +2,11 @@ import { Service, ServiceBroker } from "moleculer";
 import mongoose from "mongoose";
 import { LoginDto } from "../src/account/dto/login.dto";
 
-import { AccountController } from "../src/account/account.controller";
 import { RegisterDto } from "../src/account/dto/register.dto";
+import { AccountHandler } from "../src/account/account.handler";
 
 class AccountService extends Service {
+	private appService: AccountHandler;
 	constructor(broker: ServiceBroker) {
 		super(broker);
 
@@ -71,26 +72,27 @@ class AccountService extends Service {
 					handler: this.checkAccountExist,
 				},
 			},
+			started: this.started,
 			dependencies: ["app"],
 		});
 	}
 
 	private async register(ctx: any) {
 		const { username, password }: RegisterDto = ctx.params;
-		const res = await AccountController.register(username, password);
+		const res = await this.appService.register(username, password);
 		return res;
 	}
 
 	private async login(ctx: any) {
 		const { username, password }: LoginDto = ctx.params;
-		const res = await AccountController.login(username, password);
+		const res = await this.appService.login(username, password);
 		return res;
 	}
 
 	private async update(ctx: any) {
 		const { _id } = ctx.meta.user;
 		const { fullName, address } = ctx.params;
-		const res = await AccountController.update(
+		const res = await this.appService.update(
 			new mongoose.Types.ObjectId(_id),
 			fullName,
 			address
@@ -100,14 +102,14 @@ class AccountService extends Service {
 
 	private async verifyToken(ctx: any) {
 		const { token } = ctx.params;
-		const res = AccountController.verifyToken(token);
+		const res = this.appService.verifyToken(token);
 		return res;
 	}
 
 	private async changePassword(ctx: any) {
 		const { oldPassword, newPassword } = ctx.params;
 		const { _id, username } = ctx.meta.user;
-		const res = await AccountController.changePassword(
+		const res = await this.appService.changePassword(
 			new mongoose.Types.ObjectId(_id),
 			username,
 			oldPassword,
@@ -118,7 +120,7 @@ class AccountService extends Service {
 
 	private async getInfo(ctx: any) {
 		const { _id } = ctx.meta.user;
-		const res = await AccountController.getInfoById(
+		const res = this.appService.getAccountById(
 			new mongoose.Types.ObjectId(_id)
 		);
 		return res;
@@ -126,10 +128,16 @@ class AccountService extends Service {
 
 	private async checkAccountExist(ctx: any) {
 		const { userId } = ctx.params;
-		const res = await AccountController.checkAccountExist(
+		const res = await this.appService.checkAccountExist(
 			new mongoose.Types.ObjectId(userId)
 		);
 		return res;
+	}
+
+	async started() {
+		this.appService = await this.broker.call("app.getAppService", {
+			service: "account",
+		});
 	}
 }
 

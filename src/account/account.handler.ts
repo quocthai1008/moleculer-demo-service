@@ -1,9 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import mongoose from "mongoose";
-import { DbConfig } from "../../config/db.config";
 import { InjectModel } from "@nestjs/mongoose";
 import { AccountRepository } from "./account.repository";
-import { Account, AccountSchema } from "../../schemas/account.schema";
+import { Account, AccountSchema } from "../schemas/account.schema";
 import { hash, compare } from "bcryptjs";
 import { sign, verify, JwtPayload } from "jsonwebtoken";
 
@@ -17,8 +16,10 @@ export class AccountHandler implements AccountRepository {
 	public async checkAccountExist(
 		userId: mongoose.Types.ObjectId
 	): Promise<boolean> {
-		const model = await this.getAccountModel();
-		const check = await model.findOne({ _id: userId }).select("_id").lean();
+		const check = await this.accountModel
+			.findOne({ _id: userId })
+			.select("_id")
+			.lean();
 		return check ? true : false;
 	}
 
@@ -27,8 +28,7 @@ export class AccountHandler implements AccountRepository {
 		fullName: string,
 		address: string
 	): Promise<string | Error> {
-		const model = await this.getAccountModel();
-		const result = await model.updateOne(
+		const result = await this.accountModel.updateOne(
 			{ _id: userId },
 			{ fullName, address }
 		);
@@ -43,7 +43,6 @@ export class AccountHandler implements AccountRepository {
 		oldPassword: string,
 		newPassword: string
 	): Promise<string> {
-		const model = await this.getAccountModel();
 		const account = await this.getAccountByName(username);
 		const check = await compare(oldPassword, account.password);
 		if (!check) {
@@ -51,7 +50,7 @@ export class AccountHandler implements AccountRepository {
 		}
 
 		const hashPassword = await hash(newPassword, 10);
-		const result = await model.updateOne(
+		const result = await this.accountModel.updateOne(
 			{ _id: userId },
 			{ password: hashPassword }
 		);
@@ -64,26 +63,16 @@ export class AccountHandler implements AccountRepository {
 	public async getAccountById(
 		userId: mongoose.Types.ObjectId
 	): Promise<Account> {
-		const model = await this.getAccountModel();
-		const account = await model
+		const account = await this.accountModel
 			.findOne({ _id: userId })
 			.select("-password -refreshToken");
 		return account;
 	}
 
-	private async getAccountModel() {
-		if (!this.accountModel) {
-			const db = await DbConfig.connectDb();
-			this.accountModel = db.model("account", AccountSchema);
-		}
-		return this.accountModel;
-	}
-
 	public async register(username: string, password: string): Promise<string> {
-		const model = await this.getAccountModel();
 		const hashPassword = await hash(password, 10);
 
-		const user = await model.create({
+		const user = await this.accountModel.create({
 			_id: new mongoose.Types.ObjectId(),
 			username,
 			password: hashPassword,
@@ -115,8 +104,7 @@ export class AccountHandler implements AccountRepository {
 	}
 
 	private async getAccountByName(username: string): Promise<Account> {
-		const model = await this.getAccountModel();
-		const account = await model.findOne({ username });
+		const account = await this.accountModel.findOne({ username });
 		return account;
 	}
 }
