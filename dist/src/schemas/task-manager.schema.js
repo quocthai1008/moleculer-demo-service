@@ -40,4 +40,4 @@ TaskManager = __decorate([
 ], TaskManager);
 exports.TaskManager = TaskManager;
 exports.TaskManagerSchema = mongoose_1.SchemaFactory.createForClass(TaskManager);
-//# sourceMappingURL=task-mananger.schema.js.map
+//# sourceMappingURL=task-manager.schema.js.map

@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import { TaskManager } from "../schemas/task-mananger.schema";
+import { TaskManager } from "../schemas/task-manager.schema";
 import { Pagination } from "../interfaces/pagination.interface";
 import { TaskManagerRepository } from "./task-manager.repository";
 export declare class TaskManagerHandler implements TaskManagerRepository {
     private taskManagerModel;
     constructor(taskManagerModel: mongoose.Model<TaskManager>);
+    checkAssignTaskExist(taskId: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId): Promise<boolean>;
     removeByTaskId(taskId: mongoose.Types.ObjectId): Promise<void>;
     checkTaskManagerExist(taskMangerId: mongoose.Types.ObjectId): Promise<boolean>;
     checkTaskOwner(taskMangerId: mongoose.Types.ObjectId, userId: mongoose.Types.ObjectId): Promise<boolean>;

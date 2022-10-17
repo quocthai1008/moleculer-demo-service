@@ -114,8 +114,17 @@ class TaskManagerService extends Service {
 			ctx.params
 		);
 		const condition2 = await ctx.call("task.checkTaskExist", ctx.params);
+		const condition3 = await this.appService.checkAssignTaskExist(
+			new mongoose.Types.ObjectId(ctx.params.taskId),
+			new mongoose.Types.ObjectId(ctx.params.userId)
+		);
+
 		if (!condition1 || !condition2) {
 			throw new Error("Account or Task not found");
+		}
+
+		if (!condition3) {
+			throw new Error("Assign task exist");
 		}
 	}
 

@@ -88,7 +88,7 @@ export class AccountHandler implements AccountRepository {
 		}
 		const check = await compare(password, account.password);
 		if (!check) {
-			return "username or password invalid";
+			return "username or password invalid";``
 		}
 		const accessToken = sign(
 			{ _id: account._id, username },

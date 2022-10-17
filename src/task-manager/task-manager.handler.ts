@@ -1,11 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose from "mongoose";
-import {
-	TaskManager,
-	TaskManagerSchema,
-	TaskStatus,
-} from "../schemas/task-manager.schema";
+import { TaskManager, TaskStatus } from "../schemas/task-manager.schema";
 import { Pagination } from "../interfaces/pagination.interface";
 import { TaskManagerRepository } from "./task-manager.repository";
 
@@ -15,6 +11,17 @@ export class TaskManagerHandler implements TaskManagerRepository {
 		@InjectModel(TaskManager.name)
 		private taskManagerModel: mongoose.Model<TaskManager>
 	) {}
+
+	public async checkAssignTaskExist(
+		taskId: mongoose.Types.ObjectId,
+		userId: mongoose.Types.ObjectId
+	): Promise<boolean> {
+		const check = await this.taskManagerModel
+			.findOne({ userId, taskId })
+			.select("_id")
+			.lean();
+		return check ? false : true;
+	}
 
 	public async removeByTaskId(
 		taskId: mongoose.Types.ObjectId
@@ -77,7 +84,9 @@ export class TaskManagerHandler implements TaskManagerRepository {
 				: status === 1
 				? { userId, status: TaskStatus.Done }
 				: { userId };
-		const taskAmount: number = await this.taskManagerModel.countDocuments(queryObject);
+		const taskAmount: number = await this.taskManagerModel.countDocuments(
+			queryObject
+		);
 
 		const totalPage: number = Math.ceil(taskAmount / pageSize);
 

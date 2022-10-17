@@ -29,4 +29,9 @@ export interface TaskManagerRepository {
 	): Promise<boolean>;
 
 	removeByTaskId(taskId: mongoose.Types.ObjectId): Promise<void>;
+
+	checkAssignTaskExist(
+		taskId: mongoose.Types.ObjectId,
+		userId: mongoose.Types.ObjectId
+	): Promise<boolean>;
 }

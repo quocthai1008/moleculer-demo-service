@@ -90,8 +90,12 @@ class TaskManagerService extends moleculer_1.Service {
     async assignHook(ctx) {
         const condition1 = await ctx.call("account.checkAccountExist", ctx.params);
         const condition2 = await ctx.call("task.checkTaskExist", ctx.params);
+        const condition3 = await this.appService.checkAssignTaskExist(new mongoose_1.default.Types.ObjectId(ctx.params.taskId), new mongoose_1.default.Types.ObjectId(ctx.params.userId));
         if (!condition1 || !condition2) {
             throw new Error("Account or Task not found");
+        }
+        if (!condition3) {
+            throw new Error("Assign task exist");
         }
     }
     async checkTaskManagerExist(ctx) {

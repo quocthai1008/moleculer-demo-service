@@ -72,6 +72,7 @@ let AccountHandler = class AccountHandler {
         const check = await (0, bcryptjs_1.compare)(password, account.password);
         if (!check) {
             return "username or password invalid";
+            ``;
         }
         const accessToken = (0, jsonwebtoken_1.sign)({ _id: account._id, username }, process.env.SECRET_KEY, { algorithm: "HS256", expiresIn: "5h" });
         return accessToken;

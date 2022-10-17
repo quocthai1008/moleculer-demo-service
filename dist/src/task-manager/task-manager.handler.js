@@ -16,10 +16,17 @@ exports.TaskManagerHandler = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-const task_mananger_schema_1 = require("../schemas/task-mananger.schema");
+const task_manager_schema_1 = require("../schemas/task-manager.schema");
 let TaskManagerHandler = class TaskManagerHandler {
     constructor(taskManagerModel) {
         this.taskManagerModel = taskManagerModel;
+    }
+    async checkAssignTaskExist(taskId, userId) {
+        const check = await this.taskManagerModel
+            .findOne({ userId, taskId })
+            .select("_id")
+            .lean();
+        return check ? false : true;
     }
     async removeByTaskId(taskId) {
         await this.taskManagerModel.deleteMany({ taskId });
@@ -55,9 +62,9 @@ let TaskManagerHandler = class TaskManagerHandler {
     }
     async taskList(userId, status, pageId, pageSize) {
         const queryObject = status === 0
-            ? { userId, status: task_mananger_schema_1.TaskStatus.NotDone }
+            ? { userId, status: task_manager_schema_1.TaskStatus.NotDone }
             : status === 1
-                ? { userId, status: task_mananger_schema_1.TaskStatus.Done }
+                ? { userId, status: task_manager_schema_1.TaskStatus.Done }
                 : { userId };
         const taskAmount = await this.taskManagerModel.countDocuments(queryObject);
         const totalPage = Math.ceil(taskAmount / pageSize);
@@ -81,7 +88,7 @@ let TaskManagerHandler = class TaskManagerHandler {
     async markDone(taskMangerId) {
         const task = await this.taskManagerModel.updateOne({
             _id: taskMangerId,
-        }, { status: task_mananger_schema_1.TaskStatus.Done });
+        }, { status: task_manager_schema_1.TaskStatus.Done });
         return task.matchedCount !== 0
             ? "Mark done successfully"
             : "_id not match";
@@ -89,7 +96,7 @@ let TaskManagerHandler = class TaskManagerHandler {
 };
 TaskManagerHandler = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, mongoose_1.InjectModel)(task_mananger_schema_1.TaskManager.name)),
+    __param(0, (0, mongoose_1.InjectModel)(task_manager_schema_1.TaskManager.name)),
     __metadata("design:paramtypes", [mongoose_2.default.Model])
 ], TaskManagerHandler);
 exports.TaskManagerHandler = TaskManagerHandler;
