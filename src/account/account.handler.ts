@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import mongoose from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { AccountRepository } from "./account.repository";
-import { Account, AccountSchema } from "../schemas/account.schema";
+import { Account } from "../schemas/account.schema";
 import { hash, compare } from "bcryptjs";
 import { sign, verify, JwtPayload } from "jsonwebtoken";
 

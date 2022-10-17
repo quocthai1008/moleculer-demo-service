@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Pagination } from "../interfaces/pagination.interface";
-import { TaskManager } from "../schemas/task-mananger.schema";
+import { TaskManager } from "../schemas/task-manager.schema";
 
 export interface TaskManagerRepository {
 	assign(

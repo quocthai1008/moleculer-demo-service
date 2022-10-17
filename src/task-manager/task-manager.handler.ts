@@ -5,7 +5,7 @@ import {
 	TaskManager,
 	TaskManagerSchema,
 	TaskStatus,
-} from "../schemas/task-mananger.schema";
+} from "../schemas/task-manager.schema";
 import { Pagination } from "../interfaces/pagination.interface";
 import { TaskManagerRepository } from "./task-manager.repository";
 

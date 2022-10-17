@@ -3,7 +3,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import {
 	TaskManager,
 	TaskManagerSchema,
-} from "../schemas/task-mananger.schema";
+} from "../schemas/task-manager.schema";
 import { TaskManagerHandler } from "./task-manager.handler";
 
 @Module({
