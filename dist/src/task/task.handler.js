@@ -11,76 +11,102 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskHandler = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const mongoose_2 = require("mongoose");
+const mongoose_2 = __importDefault(require("mongoose"));
 const task_schema_1 = require("../schemas/task.schema");
 let TaskHandler = class TaskHandler {
     constructor(taskModel) {
         this.taskModel = taskModel;
     }
-    async checkTaskExist(taskId) {
-        const check = await this.taskModel
-            .findOne({ _id: taskId })
-            .select("_id")
-            .lean();
-        return check ? true : false;
-    }
-    async create(name, detail, managerId) {
-        const task = await this.taskModel.create({
-            _id: new mongoose_2.default.Types.ObjectId(),
-            name,
-            detail,
-            managerId,
+    checkTaskExist(taskId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const check = yield this.taskModel
+                .findOne({ _id: taskId })
+                .select("_id")
+                .lean();
+            return check ? true : false;
         });
-        await task.save();
-        return "Create task successfully";
     }
-    async update(taskId, name, detail) {
-        const task = await this.taskModel.updateOne({
-            _id: taskId,
-        }, { name, detail });
-        return task.matchedCount !== 0
-            ? "Update task successfully"
-            : "_id not match";
-    }
-    async delete(taskId) {
-        await this.taskModel.deleteOne({
-            _id: taskId,
+    create(name, detail, managerId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const task = yield this.taskModel.create({
+                _id: new mongoose_2.default.Types.ObjectId(),
+                name,
+                detail,
+                managerId,
+            });
+            yield task.save();
+            return "Create task successfully";
         });
-        return "Delete task successfully";
     }
-    async findAll(managerId, pageId, pageSize) {
-        const taskAmount = await this.taskModel.countDocuments({
-            managerId,
+    update(taskId, name, detail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const task = yield this.taskModel.updateOne({
+                _id: taskId,
+            }, { name, detail });
+            return task.matchedCount !== 0
+                ? "Update task successfully"
+                : "_id not match";
         });
-        const totalPage = Math.ceil(taskAmount / pageSize);
-        const tasks = 0 < pageId && pageId <= totalPage
-            ? await this.taskModel
-                .find({ managerId })
-                .lean()
-                .sort({ createdAt: -1 })
-                .skip(pageSize * (pageId - 1))
-                .limit(pageSize)
-            : [];
-        return {
-            data: tasks,
-            pagination: {
-                totalPage,
-                pageSize,
-                pageId,
-            },
-        };
     }
-    async findOne(taskId) {
-        const task = await this.taskModel.findById(taskId);
-        return task;
+    delete(taskId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.taskModel.deleteOne({
+                _id: taskId,
+            });
+            return "Delete task successfully";
+        });
     }
-    async isManager(taskId, managerId) {
-        const task = await this.taskModel.findOne({ _id: taskId, managerId });
-        return task ? true : false;
+    findAll(managerId, pageId, pageSize) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const taskAmount = yield this.taskModel.countDocuments({
+                managerId,
+            });
+            const totalPage = Math.ceil(taskAmount / pageSize);
+            const tasks = 0 < pageId && pageId <= totalPage
+                ? yield this.taskModel
+                    .find({ managerId })
+                    .lean()
+                    .sort({ createdAt: -1 })
+                    .skip(pageSize * (pageId - 1))
+                    .limit(pageSize)
+                : [];
+            return {
+                data: tasks,
+                pagination: {
+                    totalPage,
+                    pageSize,
+                    pageId,
+                },
+            };
+        });
+    }
+    findOne(taskId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const task = yield this.taskModel.findById(taskId);
+            return task;
+        });
+    }
+    isManager(taskId, managerId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const task = yield this.taskModel.findOne({ _id: taskId, managerId });
+            return task ? true : false;
+        });
     }
 };
 TaskHandler = __decorate([

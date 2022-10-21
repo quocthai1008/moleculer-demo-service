@@ -1,21 +1,25 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
-		"declaration": true,
-		"removeComments": true,
-		"emitDecoratorMetadata": true,
+		"allowJs": true,
+		"resolveJsonModule": true,
 		"experimentalDecorators": true,
-		"allowSyntheticDefaultImports": true,
-		"target": "es2017",
-		"sourceMap": true,
-		"outDir": "./dist",
-		"baseUrl": "./",
-		"incremental": true,
-		"skipLibCheck": true,
-		"strictNullChecks": false,
+		"module": "commonjs",
+		"esModuleInterop": true,
 		"noImplicitAny": false,
-		"strictBindCallApply": false,
-		"forceConsistentCasingInFileNames": false,
-		"noFallthroughCasesInSwitch": false
-	}
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"emitDecoratorMetadata": true,
+		"allowSyntheticDefaultImports": true,
+		"sourceMap": true,
+		"pretty": true,
+		"target": "es6",
+		"outDir": "dist",
+		"skipLibCheck": true
+	},
+	"include": ["./**/*", "libs-compiler/*.ts", "defined/*.json"],
+	"exclude": [
+		"node_modules/**/*",
+		"test",
+		"dist"
+	]
 }

@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskManagerModule = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const mongoose_1 = require("@nestjs/mongoose");
 const task_manager_schema_1 = require("../schemas/task-manager.schema");
 const task_manager_handler_1 = require("./task-manager.handler");
@@ -16,6 +17,8 @@ let TaskManagerModule = class TaskManagerModule {
 TaskManagerModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            config_1.ConfigModule.forRoot(),
+            mongoose_1.MongooseModule.forRoot(process.env.CONNECTION_STRING),
             mongoose_1.MongooseModule.forFeature([
                 { name: task_manager_schema_1.TaskManager.name, schema: task_manager_schema_1.TaskManagerSchema },
             ]),
