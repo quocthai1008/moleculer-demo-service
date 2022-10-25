@@ -1,0 +1,3 @@
+login: 
+call "account.login" '{"username":"", "password":"123456"}'
+call "account.login" '{"password":"123456"}'
